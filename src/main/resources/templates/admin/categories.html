@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>商品分类</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: adminSidebar}"></div>
+    <main class="content">
+        <header class="page-header">
+            <div>
+                <div class="page-title">商品分类</div>
+                <div class="breadcrumb">管理端 / 基础资料 / 商品分类</div>
+            </div>
+        </header>
+        <section class="page-body">
+            <div class="success" th:if="${successMessage}" th:text="${successMessage}"></div>
+
+            <section class="filter-panel">
+                <form th:action="@{/admin/categories}" method="get">
+                    <div class="filter-grid">
+                        <div class="field">
+                            <label>分类名称</label>
+                            <input type="text" name="keyword" th:value="${keyword}" placeholder="请输入分类名称">
+                        </div>
+                        <div class="field">
+                            <label>启用状态</label>
+                            <select name="enabled">
+                                <option value="">全部</option>
+                                <option value="true" th:selected="${enabled == true}">启用</option>
+                                <option value="false" th:selected="${enabled == false}">停用</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button type="submit">搜索</button>
+                        <a class="button secondary" th:href="@{/admin/categories}">重置</a>
+                    </div>
+                </form>
+            </section>
+
+            <section class="panel">
+                <h2>新增分类</h2>
+                <form th:action="@{/admin/categories}" th:object="${categoryForm}" method="post">
+                    <div class="form-grid two">
+                        <div class="field">
+                            <label>分类名称</label>
+                            <input type="text" th:field="*{name}">
+                            <span class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                        </div>
+                        <div class="field">
+                            <label>排序</label>
+                            <input type="number" th:field="*{sortOrder}">
+                            <span class="error" th:if="${#fields.hasErrors('sortOrder')}" th:errors="*{sortOrder}"></span>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button type="submit">新增分类</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="table-panel">
+                <div class="empty" th:if="${#lists.isEmpty(categories)}">暂无分类数据</div>
+                <div class="table-wrap" th:if="${!#lists.isEmpty(categories)}">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>分类ID</th>
+                            <th>分类名称</th>
+                            <th>排序</th>
+                            <th>是否启用</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="category : ${categories}">
+                            <td th:text="${category.id}"></td>
+                            <td>
+                                <form class="inline-form" th:action="@{/admin/categories/{id}/update(id=${category.id})}" method="post">
+                                    <input type="text" name="name" th:value="${category.name}" required>
+                                    <input type="number" name="sortOrder" th:value="${category.sortOrder}">
+                                    <button type="submit">修改</button>
+                                </form>
+                            </td>
+                            <td th:text="${category.sortOrder}"></td>
+                            <td><span class="enabled-badge" th:classappend="${category.enabled} ? 'yes' : 'no'" th:text="${category.enabled} ? '启用' : '停用'"></span></td>
+                            <td th:text="${category.createdAt == null ? '' : #temporals.format(category.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                            <td>
+                                <form th:if="${!category.enabled}" class="inline-form" th:action="@{/admin/categories/{id}/enable(id=${category.id})}" method="post">
+                                    <button type="submit">启用</button>
+                                </form>
+                                <form th:if="${category.enabled}" class="inline-form" th:action="@{/admin/categories/{id}/disable(id=${category.id})}" method="post">
+                                    <button class="warning" type="submit">停用</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+    </main>
+</div>
+</body>
+</html>

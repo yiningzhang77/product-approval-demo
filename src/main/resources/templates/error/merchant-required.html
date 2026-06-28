@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>缺少商家信息</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<main class="page-body">
+    <section class="panel">
+        <h1>无法访问商家端</h1>
+        <div class="error-box" th:text="${message}">缺少商家ID，请通过正确入口访问商家端。</div>
+        <div class="actions">
+            <a class="button" th:href="@{/merchant/dashboard(merchantId=1)}">使用商家1演示</a>
+            <a class="button secondary" th:href="@{/admin/dashboard}">返回管理端</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

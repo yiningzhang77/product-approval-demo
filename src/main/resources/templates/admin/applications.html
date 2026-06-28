@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>商品申请管理</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: adminSidebar}"></div>
+    <main class="content">
+        <header class="page-header">
+            <div>
+                <div class="page-title" th:text="${warningPage} ? '价格告警' : '商品申请管理'">商品申请管理</div>
+                <div class="breadcrumb" th:text="${warningPage} ? '管理端 / 价格告警' : '管理端 / 商品申请管理'"></div>
+            </div>
+        </header>
+        <section class="page-body">
+            <div class="success" th:if="${successMessage}" th:text="${successMessage}"></div>
+            <div class="error-box" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+            <section class="filter-panel">
+                <form th:action="${warningPage} ? @{/admin/applications/warnings} : @{/admin/applications}" method="get">
+                    <div class="filter-grid">
+                        <div class="field">
+                            <label>审批状态</label>
+                            <select name="status">
+                                <option value="">全部状态</option>
+                                <option value="PENDING" th:selected="${query.status != null and query.status.name() == 'PENDING'}">待审批</option>
+                                <option value="APPROVED" th:selected="${query.status != null and query.status.name() == 'APPROVED'}">已通过</option>
+                                <option value="REJECTED" th:selected="${query.status != null and query.status.name() == 'REJECTED'}">已驳回</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>商家</label>
+                            <select name="merchantId">
+                                <option value="">全部商家</option>
+                                <option th:each="merchant : ${merchants}" th:value="${merchant.id}" th:selected="${query.merchantId == merchant.id}" th:text="${merchant.name}"></option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>商品分类</label>
+                            <select name="categoryId">
+                                <option value="">全部分类</option>
+                                <option th:each="category : ${categories}" th:value="${category.id}" th:selected="${query.categoryId == category.id}" th:text="${category.name}"></option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>商品名称</label>
+                            <input type="text" name="keyword" th:value="${query.keyword}" placeholder="请输入商品名称">
+                        </div>
+                        <div class="field">
+                            <label>是否告警</label>
+                            <select name="warning">
+                                <option value="">全部</option>
+                                <option value="true" th:selected="${query.warning == true}">是</option>
+                                <option value="false" th:selected="${query.warning == false}">否</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button type="submit">搜索</button>
+                        <a class="button secondary" th:href="${warningPage} ? @{/admin/applications/warnings} : @{/admin/applications}">重置</a>
+                    </div>
+                </form>
+            </section>
+
+            <section class="table-panel">
+                <nav class="status-tabs" th:if="${!warningPage}">
+                    <a th:href="@{/admin/applications}">全部申请</a>
+                    <a th:href="@{/admin/applications(status='PENDING')}">待审批</a>
+                    <a th:href="@{/admin/applications(status='APPROVED')}">已通过</a>
+                    <a th:href="@{/admin/applications(status='REJECTED')}">已驳回</a>
+                </nav>
+                <div class="empty" th:if="${#lists.isEmpty(applications)}">暂无商品申请数据</div>
+                <div class="table-wrap" th:if="${!#lists.isEmpty(applications)}">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>申请ID</th>
+                            <th>商家名称</th>
+                            <th>商品分类</th>
+                            <th>商品名称</th>
+                            <th>商品价格</th>
+                            <th>商品图片</th>
+                            <th>状态</th>
+                            <th>是否告警</th>
+                            <th>告警原因</th>
+                            <th>申请时间</th>
+                            <th>审批时间</th>
+                            <th>审批备注</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item : ${applications}">
+                            <td th:text="${item.id}"></td>
+                            <td th:text="${item.merchantName}"></td>
+                            <td th:text="${item.categoryName}"></td>
+                            <td th:text="${item.productName}"></td>
+                            <td th:text="${item.price}"></td>
+                            <td>
+                                <a th:if="${item.imageUrl != null}" th:href="@{${item.imageUrl}}" target="_blank">
+                                    <img class="product-image" th:src="@{${item.imageUrl}}" alt="商品图片">
+                                </a>
+                                <span th:if="${item.imageUrl == null}">无</span>
+                            </td>
+                            <td><span class="status" th:classappend="${item.status.name().toLowerCase()}" th:text="${item.status}"></span></td>
+                            <td><span class="warning-badge" th:classappend="${item.warning} ? 'yes' : 'no'" th:text="${item.warning} ? '是' : '否'"></span></td>
+                            <td class="text" th:text="${item.warningReason}"></td>
+                            <td th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                            <td th:text="${item.approvedAt == null ? '' : #temporals.format(item.approvedAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                            <td class="text" th:text="${item.approvalRemark}"></td>
+                            <td>
+                                <div th:if="${item.status.name() == 'PENDING'}">
+                                    <form class="inline-form" th:action="@{/admin/applications/{id}/approve(id=${item.id})}" method="post">
+                                        <input type="text" name="approvalRemark" placeholder="审批备注，可空">
+                                        <button type="submit">通过</button>
+                                    </form>
+                                    <form class="inline-form" th:action="@{/admin/applications/{id}/reject(id=${item.id})}" method="post">
+                                        <input type="text" name="approvalRemark" placeholder="驳回原因，必填" required>
+                                        <button class="reject" type="submit">驳回</button>
+                                    </form>
+                                </div>
+                                <span th:if="${item.status.name() != 'PENDING'}">已审批</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="footer-actions">
+                    <a class="button" th:href="@{/admin/applications/export(merchantId=${query.merchantId},categoryId=${query.categoryId},keyword=${query.keyword},status=${query.status},warning=${query.warning})}">导出当前筛选结果 CSV</a>
+                </div>
+            </section>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>审批工作台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: adminSidebar}"></div>
+    <main class="content">
+        <header class="page-header">
+            <div>
+                <div class="page-title">审批工作台</div>
+                <div class="breadcrumb">管理端 / 审批工作台</div>
+            </div>
+        </header>
+        <section class="page-body">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-label">总申请数量</div><div class="stat-value" th:text="${stats.totalCount}">0</div></div>
+                <div class="stat-card"><div class="stat-label">待审批数量</div><div class="stat-value" th:text="${stats.pendingCount}">0</div></div>
+                <div class="stat-card"><div class="stat-label">已通过数量</div><div class="stat-value" th:text="${stats.approvedCount}">0</div></div>
+                <div class="stat-card"><div class="stat-label">已驳回数量</div><div class="stat-value" th:text="${stats.rejectedCount}">0</div></div>
+                <div class="stat-card"><div class="stat-label">价格告警数量</div><div class="stat-value" th:text="${stats.warningCount}">0</div></div>
+            </div>
+
+            <section class="table-panel">
+                <h2>最近待审批申请</h2>
+                <div class="empty" th:if="${#lists.isEmpty(recentPending)}">暂无待审批申请</div>
+                <div class="table-wrap" th:if="${!#lists.isEmpty(recentPending)}">
+                    <table>
+                        <thead><tr><th>申请ID</th><th>商家</th><th>分类</th><th>商品</th><th>价格</th><th>申请时间</th></tr></thead>
+                        <tbody>
+                        <tr th:each="item : ${recentPending}">
+                            <td th:text="${item.id}"></td>
+                            <td th:text="${item.merchantName}"></td>
+                            <td th:text="${item.categoryName}"></td>
+                            <td th:text="${item.productName}"></td>
+                            <td th:text="${item.price}"></td>
+                            <td th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="table-panel">
+                <h2>最近价格告警申请</h2>
+                <div class="empty" th:if="${#lists.isEmpty(recentWarnings)}">暂无价格告警申请</div>
+                <div class="table-wrap" th:if="${!#lists.isEmpty(recentWarnings)}">
+                    <table>
+                        <thead><tr><th>申请ID</th><th>商家</th><th>分类</th><th>商品</th><th>价格</th><th>状态</th><th>告警原因</th></tr></thead>
+                        <tbody>
+                        <tr th:each="item : ${recentWarnings}">
+                            <td th:text="${item.id}"></td>
+                            <td th:text="${item.merchantName}"></td>
+                            <td th:text="${item.categoryName}"></td>
+                            <td th:text="${item.productName}"></td>
+                            <td th:text="${item.price}"></td>
+                            <td><span class="status" th:classappend="${item.status.name().toLowerCase()}" th:text="${item.status}"></span></td>
+                            <td class="text" th:text="${item.warningReason}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+    </main>
+</div>
+</body>
+</html>

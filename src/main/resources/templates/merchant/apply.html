@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>提交商品申请</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: merchantSidebar}"></div>
+    <main class="content">
+        <header class="page-header">
+            <div>
+                <div class="page-title">提交商品申请</div>
+                <div class="breadcrumb">商家端 / 提交商品申请</div>
+            </div>
+        </header>
+        <section class="page-body">
+            <section class="panel">
+                <div class="success" th:if="${successMessage}" th:text="${successMessage}"></div>
+                <div class="error-box" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+                <form th:action="@{/merchant/apply(merchantId=${merchant.id})}" th:object="${productApplyForm}" method="post" enctype="multipart/form-data">
+                    <div class="form-grid two">
+                        <div class="field">
+                            <label>当前商家</label>
+                            <input type="text" th:value="${merchant.name}" disabled>
+                        </div>
+                        <div class="field">
+                            <label for="categoryId">商品分类 *</label>
+                            <select id="categoryId" th:field="*{categoryId}">
+                                <option value="">请选择商品分类</option>
+                                <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+                            </select>
+                            <span class="error" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></span>
+                        </div>
+                        <div class="field">
+                            <label for="productName">商品名称 *</label>
+                            <input id="productName" type="text" th:field="*{productName}">
+                            <span class="error" th:if="${#fields.hasErrors('productName')}" th:errors="*{productName}"></span>
+                        </div>
+                        <div class="field">
+                            <label for="price">商品价格 *</label>
+                            <input id="price" type="number" step="0.01" min="0.01" th:field="*{price}">
+                            <span class="error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></span>
+                        </div>
+                        <div class="field full">
+                            <label for="image">商品图片</label>
+                            <input id="image" type="file" th:field="*{image}" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+                            <span class="error" th:if="${#fields.hasErrors('image')}" th:errors="*{image}"></span>
+                        </div>
+                        <div class="field full">
+                            <label for="intro">商品简介</label>
+                            <textarea id="intro" th:field="*{intro}"></textarea>
+                        </div>
+                        <div class="field full">
+                            <label for="remark">备注</label>
+                            <textarea id="remark" th:field="*{remark}"></textarea>
+                            <span class="error" th:if="${#fields.hasErrors('remark')}" th:errors="*{remark}"></span>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button type="submit">提交申请</button>
+                        <a class="button secondary" th:href="@{/merchant/applications(merchantId=${merchant.id})}">查看我的申请</a>
+                    </div>
+                </form>
+            </section>
+        </section>
+    </main>
+</div>
+</body>
+</html>

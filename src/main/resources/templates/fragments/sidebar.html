@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="sidebar" th:fragment="merchantSidebar">
+    <div class="sidebar-title">商家端</div>
+    <div class="sidebar-section" th:text="${merchant.name}">当前商家</div>
+    <a th:classappend="${activeMenu == 'merchant-dashboard'} ? 'active'"
+       th:href="@{/merchant/dashboard(merchantId=${merchant.id})}">商家工作台</a>
+    <a th:classappend="${activeMenu == 'merchant-apply'} ? 'active'"
+       th:href="@{/merchant/apply(merchantId=${merchant.id})}">提交商品申请</a>
+    <a th:classappend="${activeMenu == 'merchant-applications'} ? 'active'"
+       th:href="@{/merchant/applications(merchantId=${merchant.id})}">我的申请</a>
+    <div class="sidebar-section">管理入口</div>
+    <a th:href="@{/admin/dashboard}">进入管理端</a>
+</aside>
+
+<aside class="sidebar" th:fragment="adminSidebar">
+    <div class="sidebar-title">管理端</div>
+    <div class="sidebar-section">工作台</div>
+    <a th:classappend="${activeMenu == 'admin-dashboard'} ? 'active'"
+       th:href="@{/admin/dashboard}">审批工作台</a>
+    <div class="sidebar-section">商品申请管理</div>
+    <a th:classappend="${activeMenu == 'admin-applications' and query != null and query.status == null and query.warning == null} ? 'active'"
+       th:href="@{/admin/applications}">全部申请</a>
+    <a class="child" th:href="@{/admin/applications(status='PENDING')}">待审批</a>
+    <a class="child" th:href="@{/admin/applications(status='APPROVED')}">已通过</a>
+    <a class="child" th:href="@{/admin/applications(status='REJECTED')}">已驳回</a>
+    <a th:classappend="${activeMenu == 'admin-warnings'} ? 'active'"
+       th:href="@{/admin/applications/warnings}">价格告警</a>
+    <div class="sidebar-section">基础资料</div>
+    <a th:classappend="${activeMenu == 'admin-categories'} ? 'active'"
+       th:href="@{/admin/categories}">商品分类</a>
+    <div class="sidebar-section">商家端演示</div>
+    <a th:href="@{/merchant/dashboard(merchantId=1)}">商家1工作台</a>
+</aside>
+</body>
+</html>
