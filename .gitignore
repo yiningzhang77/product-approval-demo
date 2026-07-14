@@ -3,3 +3,4 @@ uploads/
 *.log
 .idea/
 *.iml
+application.properties

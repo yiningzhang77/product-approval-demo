@@ -10,6 +10,7 @@ import com.example.productapproval.entity.ProductCategory;
 import com.example.productapproval.repository.MerchantRepository;
 import com.example.productapproval.repository.ProductApplyRepository;
 import com.example.productapproval.repository.ProductCategoryRepository;
+import com.example.productapproval.service.rule.PriceWarningRule;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
@@ -34,22 +35,25 @@ import java.util.UUID;
 @Service
 public class ProductApplyService {
 
-    private static final BigDecimal WARNING_PRICE = new BigDecimal("1000");
-    private static final String WARNING_REASON = "商品价格超过审批阈值，请重点关注";
+//    private static final BigDecimal WARNING_PRICE = new BigDecimal("1000");
+//    private static final String WARNING_REASON = "商品价格超过审批阈值，请重点关注";
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png");
 
     private final ProductApplyRepository productApplyRepository;
     private final MerchantRepository merchantRepository;
     private final ProductCategoryRepository productCategoryRepository;
+    private final PriceWarningRule priceWarningRule;
     private final Path uploadRoot;
 
     public ProductApplyService(ProductApplyRepository productApplyRepository,
                                MerchantRepository merchantRepository,
                                ProductCategoryRepository productCategoryRepository,
+                               PriceWarningRule priceWarningRule,
                                @Value("${app.upload.dir:uploads}") String uploadDir) {
         this.productApplyRepository = productApplyRepository;
         this.merchantRepository = merchantRepository;
         this.productCategoryRepository = productCategoryRepository;
+        this.priceWarningRule = priceWarningRule;
         this.uploadRoot = Paths.get(uploadDir).toAbsolutePath().normalize();
     }
 
@@ -191,10 +195,9 @@ public class ProductApplyService {
     }
 
     private void applyWarning(ProductApply productApply) {
-        boolean warning = productApply.getPrice() != null
-                && productApply.getPrice().compareTo(WARNING_PRICE) > 0;
+        boolean warning = priceWarningRule.shouldWarn(productApply.getPrice());
         productApply.setWarning(warning);
-        productApply.setWarningReason(warning ? WARNING_REASON : null);
+        productApply.setWarningReason(warning ? priceWarningRule.warningReason() : null);
     }
 
     private String saveImage(MultipartFile image) {
