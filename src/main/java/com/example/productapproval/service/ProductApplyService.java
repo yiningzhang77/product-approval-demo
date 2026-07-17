@@ -35,8 +35,6 @@ import java.util.UUID;
 @Service
 public class ProductApplyService {
 
-//    private static final BigDecimal WARNING_PRICE = new BigDecimal("1000");
-//    private static final String WARNING_REASON = "商品价格超过审批阈值，请重点关注";
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png");
 
     private final ProductApplyRepository productApplyRepository;
@@ -194,12 +192,6 @@ public class ProductApplyService {
         return productApply;
     }
 
-    private void applyWarning(ProductApply productApply) {
-        boolean warning = priceWarningRule.shouldWarn(productApply.getPrice());
-        productApply.setWarning(warning);
-        productApply.setWarningReason(warning ? priceWarningRule.warningReason() : null);
-    }
-
     private String saveImage(MultipartFile image) {
         if (image == null || image.isEmpty()) {
             return null;
@@ -233,5 +225,13 @@ public class ProductApplyService {
 
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
+    }
+
+    private void applyWarning(ProductApply productApply) {
+        boolean warning = priceWarningRule.shouldWarn(productApply.getPrice());
+
+        productApply.setWarning(warning);
+        productApply.setWarningReason(warning ? priceWarningRule.warningReason() : null);
+        productApply.setWarningThreshold(priceWarningRule.getThreshold());
     }
 }

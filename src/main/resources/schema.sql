@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS product_apply (
   status VARCHAR(20) NOT NULL,
   approval_remark VARCHAR(500),
   is_warning TINYINT(1) NOT NULL DEFAULT 0,
+  warning_threshold DECIMAL(10, 2) NOT NULL,
   warning_reason VARCHAR(255),
   created_at DATETIME,
   updated_at DATETIME,

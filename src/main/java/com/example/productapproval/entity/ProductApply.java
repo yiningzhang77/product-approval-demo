@@ -69,6 +69,17 @@ public class ProductApply {
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
+    @Column(name = "warning_threshold", nullable = false, precision = 10, scale = 2)
+    private BigDecimal warningThreshold;
+
+    public void setWarningThreshold(BigDecimal warningThreshold) {
+        this.warningThreshold = warningThreshold;
+    }
+
+    public BigDecimal getWarningThreshold() {
+        return warningThreshold;
+    }
+
     public Long getId() {
         return id;
     }
